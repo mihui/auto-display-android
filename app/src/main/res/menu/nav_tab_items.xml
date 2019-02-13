@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <item android:id="@+id/tab_home"
+            android:title="Home"
+            android:icon="@drawable/ic_menu_share" />
+        <item android:id="@+id/tab_transactions"
+            android:title="Transactions"
+            android:icon="@drawable/ic_menu_camera" />
+        <item android:id="@+id/tab_me"
+            android:title="Me"
+            android:icon="@drawable/ic_menu_gallery" />
+
+</menu>
