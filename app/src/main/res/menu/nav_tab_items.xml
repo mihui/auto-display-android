@@ -4,13 +4,13 @@
     android:layout_height="match_parent">
 
         <item android:id="@+id/tab_home"
-            android:title="Home"
+            android:title="连接"
             android:icon="@drawable/ic_menu_share" />
         <item android:id="@+id/tab_transactions"
-            android:title="Transactions"
+            android:title="圈子"
             android:icon="@drawable/ic_menu_camera" />
         <item android:id="@+id/tab_me"
-            android:title="Me"
+            android:title="设置"
             android:icon="@drawable/ic_menu_gallery" />
 
 </menu>
