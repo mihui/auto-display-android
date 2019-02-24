@@ -31,9 +31,9 @@ import android.support.annotation.Nullable
 
 class MainActivity : AppCompatActivity() {
 
-    var homeFragment = HomeFragment()
-    var meFragment = MeFragment()
-    var transFragment = TransactionsFragment()
+    private var homeFragment = HomeFragment()
+    private var meFragment = MeFragment()
+    private var transFragment = TransactionsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
