@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,17 +28,22 @@ class HomeFragment : Fragment() {
     var deviceList: ArrayList<BluetoothDevice>? = null
 
     private lateinit var mActivity: FragmentActivity
+    private lateinit var mRecyclerView: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         println("### HomeFragment.onCreateView ###")
+
         initBluetooth();
+
         if(activity == null) {
             println("### NULL ACTIVITY")
         }
         else {
             println("### NON-NULL ACTIVITY")
             mActivity = activity as FragmentActivity
+            mRecyclerView = mActivity.findViewById(R.id.recycler_bounded_devices)
+//            mRecyclerView.adapter =
         }
 
         return inflater.inflate(R.layout.fragment_home, null)
