@@ -21,14 +21,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.ibm.cic.kotlin.starterkit.BLEModel
+import com.ibm.cic.kotlin.starterkit.adapters.BLEAdapter
 import com.ibm.cic.kotlin.starterkit.application.R
 
 class HomeFragment : Fragment() {
 
-    var deviceList: ArrayList<BluetoothDevice>? = null
+    var deviceList: ArrayList<BLEModel>? = null
 
     private lateinit var mActivity: FragmentActivity
     private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mBLEAdapter: BLEAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -43,7 +46,10 @@ class HomeFragment : Fragment() {
             println("### NON-NULL ACTIVITY")
             mActivity = activity as FragmentActivity
             mRecyclerView = mActivity.findViewById(R.id.recycler_bounded_devices)
-//            mRecyclerView.adapter =
+            mBLEAdapter = BLEAdapter(this.requireContext())
+
+            mRecyclerView.adapter = mBLEAdapter
+
         }
 
         return inflater.inflate(R.layout.fragment_home, null)
@@ -174,8 +180,10 @@ class HomeFragment : Fragment() {
                 print(device.bondState)
                 print(result.rssi)
                 print("### /SCAN CALLBACK ###")
-                deviceList?.add(device)
+                deviceList?.add( BLEModel(device.name, device.address, device.bondState, result.rssi))
             }
+
+            mBLEAdapter.setDevices(deviceList!!)
 
         }
 

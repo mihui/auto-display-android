@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="com.ibm.cic.kotlin.starterkit.BLEModel"/>
+        <variable
+            name="model"
+            type="com.ibm.cic.kotlin.starterkit.BLEModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">'
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@{model.name}"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@{model.address}"
+            android:textSize="9dp"
+            />
+    </LinearLayout>
+</layout>
