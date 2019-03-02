@@ -16,7 +16,9 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +28,8 @@ import com.ibm.cic.kotlin.starterkit.adapters.BLEAdapter
 import com.ibm.cic.kotlin.starterkit.application.R
 
 class HomeFragment : Fragment() {
+
+    private val TAG = "HomeFragment"
 
     var deviceList: ArrayList<BLEModel>? = null
 
@@ -37,22 +41,26 @@ class HomeFragment : Fragment() {
 
         println("### HomeFragment.onCreateView ###")
 
-        initBluetooth();
+        val cView = inflater.inflate(R.layout.fragment_home, null);
 
         if(activity == null) {
             println("### NULL ACTIVITY")
         }
         else {
             println("### NON-NULL ACTIVITY")
-            mActivity = activity as FragmentActivity
-            mRecyclerView = mActivity.findViewById(R.id.recycler_bounded_devices)
-            mBLEAdapter = BLEAdapter(this.requireContext())
 
+            mActivity = activity as FragmentActivity
+            mRecyclerView = cView.findViewById(R.id.recycler_bounded_devices)
+            mBLEAdapter = BLEAdapter()
+
+            mRecyclerView.layoutManager = LinearLayoutManager(mActivity)
             mRecyclerView.adapter = mBLEAdapter
+
+            initBluetooth();
 
         }
 
-        return inflater.inflate(R.layout.fragment_home, null)
+        return cView
     }
 
     private var mScanFilters: List<ScanFilter>? = null
@@ -60,7 +68,7 @@ class HomeFragment : Fragment() {
     private var mScanner: BluetoothLeScanner? = null
     private var mScanSettings: ScanSettings? = null
     private var mHandler: Handler? = null
-    private val SCAN_PERIOD: Long = 2000
+    private val SCAN_PERIOD: Long = 20000
     private val REQUEST_CODE_ACCESS_FINE_LOCATION: Int = 1
 
     private fun initBluetooth() {
@@ -73,12 +81,14 @@ class HomeFragment : Fragment() {
     private fun initPermission(access: String) {
 
         println("### INIT PERMISSION ###")
+
         val permission = ContextCompat.checkSelfPermission(mActivity.applicationContext, access)
 
         if (permission == PackageManager.PERMISSION_GRANTED) {
             initBLE()
         }
         else {
+            Log.e(TAG, "NO ACCESS")
             // Manifest.permission.ACCESS_COARSE_LOCATION
             if(ActivityCompat.shouldShowRequestPermissionRationale(mActivity, access)) {
 
@@ -174,13 +184,27 @@ class HomeFragment : Fragment() {
 
             val device = result?.device
             if(device != null) {
-                print("### SCAN CALLBACK ###")
-                print(device.name)
-                print(device.address)
-                print(device.bondState)
-                print(result.rssi)
-                print("### /SCAN CALLBACK ###")
-                deviceList?.add( BLEModel(device.name, device.address, device.bondState, result.rssi))
+                println("### SCAN CALLBACK ###")
+                var name = "Unknown device"
+                if(device.name != null) {
+                    name = device.name
+                }
+                println(device.name)
+                println(device.address)
+                println(device.bondState)
+                println(result.rssi)
+                println("### /SCAN CALLBACK ###")
+                val model = BLEModel(name, device.address, device.bondState, result.rssi)
+                var isExists = false
+                deviceList?.iterator()?.forEach {
+                    if (it.address == model.address) {
+                        isExists = true
+                    }
+                }
+                if(isExists) {
+                    return
+                }
+                deviceList?.add( model )
             }
 
             mBLEAdapter.setDevices(deviceList!!)

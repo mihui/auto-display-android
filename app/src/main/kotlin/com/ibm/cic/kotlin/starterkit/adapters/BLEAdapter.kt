@@ -8,29 +8,36 @@ import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.ibm.cic.kotlin.starterkit.application.R
 import com.ibm.cic.kotlin.starterkit.interfaces.OnBLEItemClickInterface
+import kotlinx.android.synthetic.main.item_ble.view.*
 
-internal class BLEAdapter constructor(_context: Context) : Adapter<RecyclerView.ViewHolder>() {
+internal class BLEAdapter constructor() : Adapter<RecyclerView.ViewHolder>() {
 
-    private var context: Context
     private lateinit var devices: List<BLEModel>
-    private lateinit var listener: OnBLEItemClickInterface
+    private var listener: OnBLEItemClickInterface? = null
 
     init {
 
-        context = _context
         setDevices(ArrayList())
     }
 
     fun setDevices(_devices: List<BLEModel>) {
         devices = _devices;
+        notifyDataSetChanged();
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
         val model = devices.get(position)
+
+        holder.itemView.name.text = model.name
+        holder.itemView.address.text = model.address
+
         holder.itemView.setOnClickListener {
-            listener.onClick(model)
+
+            listener?.onClick(model)
         }
     }
 
@@ -41,7 +48,7 @@ internal class BLEAdapter constructor(_context: Context) : Adapter<RecyclerView.
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
 
-        val view: View = LayoutInflater.from(context).inflate(R.layout.item_ble, parent, false)
+        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.item_ble, parent, false)
 
         return RecyclerViewHolder(view)
     }
