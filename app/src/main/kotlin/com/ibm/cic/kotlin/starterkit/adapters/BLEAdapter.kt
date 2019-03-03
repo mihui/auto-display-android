@@ -1,6 +1,5 @@
 package com.ibm.cic.kotlin.starterkit.adapters
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import com.ibm.cic.kotlin.starterkit.BLEModel
 
@@ -8,7 +7,6 @@ import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import com.ibm.cic.kotlin.starterkit.application.R
 import com.ibm.cic.kotlin.starterkit.interfaces.OnBLEItemClickInterface
 import kotlinx.android.synthetic.main.item_ble.view.*

@@ -10,7 +10,6 @@
         android:orientation="vertical"
         android:padding="@dimen/activity_horizontal_margin"
         android:layout_alignParentTop="true"
-        android:layout_margin="4dp"
         >
 
         <Button
@@ -19,7 +18,7 @@
             android:layout_height="wrap_content"
             android:text="发现我的设备"
             android:layout_margin="0dp"
-            android:padding="20dp"
+            android:padding="@dimen/activity_horizontal_margin"
             android:textSize="20sp"
             android:minHeight="0dp"
             />
@@ -27,36 +26,41 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:text="已绑定设备"
             android:padding="4dp"
             />
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_bounded_devices"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/layout_devices"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="4dp"
-        android:padding="@dimen/activity_horizontal_margin"
-        tools:itemCount="28"
-        android:layout_above="@id/btn_connect"
-        />
+        android:layout_above="@id/layout_connect"
 
-    <Button
+        android:padding="@dimen/activity_horizontal_margin"
+        >
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_bounded_devices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="28"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_connect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:padding="@dimen/activity_horizontal_margin"
+        >
+    <Button
         android:id="@+id/btn_connect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:minHeight="0dp"
-        android:padding="20dp"
         android:text="连接设备"
         android:textSize="20sp" />
+    </LinearLayout>
 
 </RelativeLayout>
