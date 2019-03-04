@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.ibm.cic.kotlin.starterkit.helpers.IDeviceFinder
 
 class HomeFragment : Fragment() {
 
+    private val TAG = "BLE|HomeFragment"
     private lateinit var mActivity: FragmentActivity
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mBLEAdapter: BLEAdapter
@@ -28,15 +30,15 @@ class HomeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        println("### HomeFragment.onCreateView ###")
+        Log.i(TAG, "### HomeFragment.onCreateView ###")
 
         val cView = inflater.inflate(R.layout.fragment_home, null);
 
         if(activity == null) {
-            println("### NULL ACTIVITY")
+            Log.e(TAG,"### NULL ACTIVITY")
         }
         else {
-            println("### NON-NULL ACTIVITY")
+            Log.i(TAG,"### NON-NULL ACTIVITY")
 
             mActivity = activity as FragmentActivity
             mRecyclerView = cView.findViewById(R.id.recycler_bounded_devices)
@@ -60,13 +62,15 @@ class HomeFragment : Fragment() {
         }
 
         override fun onError(errorCode: Int) {
-
+            Log.e(TAG, "### ERROR ###")
+            Log.e(TAG, errorCode.toString())
+            Log.e(TAG, "### /ERROR ###")
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 
-        println("### ON REQUEST PERMISSION RESULT ###")
+        Log.i(TAG,"### ON REQUEST PERMISSION RESULT ###")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when(requestCode) {

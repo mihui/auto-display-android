@@ -25,7 +25,7 @@ interface IDeviceFinder {
 
 open class DeviceFinder : Fragment() {
 
-    private val TAG = "BLEHelper"
+    private val TAG = "BLE|BLEHelper"
 
     private var mScanFilters: List<ScanFilter>? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -58,7 +58,7 @@ open class DeviceFinder : Fragment() {
 
     private fun initPermission(access: String) {
 
-        println("### INIT PERMISSION ###")
+        Log.i(TAG, "### INIT PERMISSION ###")
 
         val permission = ContextCompat.checkSelfPermission(mActivity.applicationContext, access)
 
@@ -89,7 +89,7 @@ open class DeviceFinder : Fragment() {
 
     fun checkFeature() {
 
-        println("### INIT BLE ###")
+        Log.i(TAG, "### INIT BLE ###")
         if(mActivity.packageManager!!.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
 
             val bluetoothManager: BluetoothManager = mActivity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -108,14 +108,22 @@ open class DeviceFinder : Fragment() {
             }
         }
         else {
-            println("### NO BLE SUPPORT ###")
+
+            Log.d(TAG,"### NO BLE SUPPORT ###")
+
+            val list = mutableListOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+
+            list.forEach {
+                deviceList.add(BLEModel(String.format("Auto Display - %s", it), String.format("0%s:00:00:00:00:00", it), 1, it.toInt()))
+            }
+            mDelegate?.onResult(deviceList)
             Toast.makeText(mActivity, "The BLE is not supported!", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun scanDevices(enable: Boolean) {
 
-        println("### SCAN DEVICES ###")
+        Log.i(TAG, "### SCAN DEVICES ###")
         if(enable) {
             mHandler?.postDelayed({
                 mScanner?.stopScan(mScanCallback)
@@ -134,15 +142,16 @@ open class DeviceFinder : Fragment() {
             val device = result?.device
 
             if(device != null) {
-                println("### SCAN CALLBACK ###")
+
+                Log.i(TAG, "### SCAN CALLBACK ###")
                 var name = "Unknown device"
                 if(device.name != null) {
                     name = device.name
                 }
 
-                String.format("%s, %s, %s, %s", device.name, device.address, device.bondState, result.rssi)
+                Log.d(TAG, String.format("%s, %s, %s, %s", device.name, device.address, device.bondState, result.rssi))
 
-                println("### /SCAN CALLBACK ###")
+                Log.d(TAG, "### /SCAN CALLBACK ###")
                 val model = BLEModel(name, device.address, device.bondState, result.rssi)
                 var isExists = false
                 deviceList.iterator().forEach {
@@ -164,22 +173,22 @@ open class DeviceFinder : Fragment() {
 
         override fun onScanFailed(errorCode: Int) {
 
-            print("### ERROR ###")
-            print(errorCode)
+            Log.e(TAG, "### ERROR ###")
+            Log.e(TAG, errorCode.toString())
+            Log.e(TAG, "### /ERROR ###")
             mDelegate?.onError(errorCode)
-            print("### /ERROR ###")
         }
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
 
-            println("### ON BATCH SCAN RESULTS ###")
+            Log.i(TAG, "### ON BATCH SCAN RESULTS ###")
         }
     }
 
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 
-        println("### ON REQUEST PERMISSION RESULT ###")
+        Log.i(TAG,"### ON REQUEST PERMISSION RESULT ###")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when(requestCode) {

@@ -1,15 +1,7 @@
 package com.ibm.cic.kotlin.starterkit.application
 
-import android.Manifest
-import android.app.AlertDialog
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
-import android.bluetooth.le.*
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
+import android.support.annotation.Nullable
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
@@ -20,13 +12,9 @@ import android.view.MenuItem
 import com.ibm.cic.kotlin.starterkit.fragments.HomeFragment
 import com.ibm.cic.kotlin.starterkit.fragments.MeFragment
 import com.ibm.cic.kotlin.starterkit.fragments.TransactionsFragment
-
+import com.ibm.cic.kotlin.starterkit.helpers.LogHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-
-import com.ibm.cic.kotlin.starterkit.helpers.LogHelper
-
-import android.support.annotation.Nullable
 
 
 class MainActivity : AppCompatActivity() {
