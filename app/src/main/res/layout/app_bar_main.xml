@@ -32,7 +32,7 @@
         android:layout_margin="@dimen/fab_margin"
         app:layout_anchor="@+id/include"
         app:layout_anchorGravity="left|center"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@android:drawable/ic_dialog_email" android:visibility="invisible" />
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/tab_bottom"

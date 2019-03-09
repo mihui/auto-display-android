@@ -4,7 +4,7 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/layout_devices"
+        android:id="@+id/layout_discover_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -12,37 +12,39 @@
         android:padding="@dimen/content_spacing">
 
         <Button
-            android:id="@+id/btn_discover"
+            android:id="@+id/btn_discover_refresh"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
             android:minHeight="0dp"
             android:padding="@dimen/content_spacing"
-            android:text="@string/discover_my_ble"
+            android:text="@string/refresh"
             android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/connected_device_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:text="@string/connected_device_list" />
+            <TextView
+                android:id="@+id/discovered_device_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="@string/discovered_device_list"
+                />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_devices"
+        android:layout_below="@id/layout_discover_devices"
         >
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_bounded_devices"
+            android:id="@+id/recycler_discover_bounded_devices"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/transparent"
-            tools:itemCount="5"
-            tools:listitem="@layout/item_connected_ble" />
+            tools:itemCount="6"
+            tools:listitem="@layout/item_discovering_ble"
+            />
     </LinearLayout>
 
 </RelativeLayout>

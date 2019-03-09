@@ -15,7 +15,8 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
-import com.ibm.cic.kotlin.starterkit.BLEModel
+import com.ibm.cic.kotlin.starterkit.application.R
+import com.ibm.cic.kotlin.starterkit.models.BLEModel
 
 interface IDeviceFinder {
 
@@ -25,7 +26,7 @@ interface IDeviceFinder {
 
 open class DeviceFinder : Fragment() {
 
-    private val TAG = "BLE|BLEHelper"
+    private val TAG = "BLE|DeviceFinder"
 
     private var mScanFilters: List<ScanFilter>? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -36,13 +37,27 @@ open class DeviceFinder : Fragment() {
     protected lateinit var mActivity: FragmentActivity
 
     private var deviceList: ArrayList<BLEModel> = ArrayList()
-    private val mScanPeriod: Long = 20000
+    private val mScanPeriod: Long = 5000
 
     var mDelegate: IDeviceFinder? = null
+
+    private lateinit var mScanCallback: ScanCallback
 
     companion object {
 
         val REQUEST_CODE_ACCESS_FINE_LOCATION: Int = 1
+
+        fun makeDevices() : ArrayList<BLEModel> {
+
+            val result = ArrayList<BLEModel>()
+            val list = mutableListOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+
+            list.forEach {
+                result.add(BLEModel(String.format("Fufinity Display - %s", it), String.format("0%s:00:00:00:00:00", it), 1, it.toInt()))
+            }
+
+            return result
+        }
     }
 
     fun scan(activity: FragmentActivity, delegate: IDeviceFinder) {
@@ -52,6 +67,60 @@ open class DeviceFinder : Fragment() {
         mDelegate = delegate
 
         mHandler = Handler()
+
+        mScanCallback = object:  ScanCallback() {
+
+            override fun onScanResult(callbackType: Int, result: ScanResult?) {
+
+                val device = result?.device
+
+                if(device != null) {
+
+                    //Log.i(TAG, "### SCAN CALLBACK ###")
+                    var name = getRuntimeString(R.string.unknown_device)
+
+                    if(device.name != null) {
+                        name = device.name
+                    }
+
+                    //Log.d(TAG, String.format("### %s, %s, %s, %s ###", device.name, device.address, device.bondState, result.rssi))
+
+                    //Log.d(TAG, "### /SCAN CALLBACK ###")
+                    val model = BLEModel(name, device.address, device.bondState, result.rssi)
+                    var isExists = false
+                    deviceList.iterator().forEach {
+                        if (it.address == model.address) {
+
+                            it.name = model.name
+                            isExists = true
+                        }
+                    }
+
+                    if(isExists) {
+                        return
+                    }
+                    deviceList.add( model )
+                }
+
+//            mBLEAdapter.setDevices(deviceList!!)
+
+                mDelegate?.onResult(deviceList)
+
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+
+                Log.e(TAG, "### ERROR ###")
+                Log.e(TAG, errorCode.toString())
+                Log.e(TAG, "### /ERROR ###")
+                mDelegate?.onError(errorCode)
+            }
+
+            override fun onBatchScanResults(results: MutableList<ScanResult>?) {
+
+                Log.i(TAG, "### ON BATCH SCAN RESULTS ###")
+            }
+        }
 
         initPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     }
@@ -111,17 +180,15 @@ open class DeviceFinder : Fragment() {
 
             Log.d(TAG,"### NO BLE SUPPORT ###")
 
-            val list = mutableListOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+            val list = makeDevices()
+            deviceList.addAll(list)
 
-            list.forEach {
-                deviceList.add(BLEModel(String.format("Auto Display - %s", it), String.format("0%s:00:00:00:00:00", it), 1, it.toInt()))
-            }
             mDelegate?.onResult(deviceList)
             Toast.makeText(mActivity, "The BLE is not supported!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun scanDevices(enable: Boolean) {
+    fun scanDevices(enable: Boolean) {
 
         Log.i(TAG, "### SCAN DEVICES ###")
         if(enable) {
@@ -135,56 +202,10 @@ open class DeviceFinder : Fragment() {
         }
     }
 
-    private val mScanCallback = object:  ScanCallback() {
+    fun getRuntimeString(resId: Int): String {
 
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
-
-            val device = result?.device
-
-            if(device != null) {
-
-                Log.i(TAG, "### SCAN CALLBACK ###")
-                var name = "Unknown device"
-                if(device.name != null) {
-                    name = device.name
-                }
-
-                Log.d(TAG, String.format("%s, %s, %s, %s", device.name, device.address, device.bondState, result.rssi))
-
-                Log.d(TAG, "### /SCAN CALLBACK ###")
-                val model = BLEModel(name, device.address, device.bondState, result.rssi)
-                var isExists = false
-                deviceList.iterator().forEach {
-                    if (it.address == model.address) {
-                        isExists = true
-                    }
-                }
-                if(isExists) {
-                    return
-                }
-                deviceList.add( model )
-            }
-
-//            mBLEAdapter.setDevices(deviceList!!)
-
-            mDelegate?.onResult(deviceList)
-
-        }
-
-        override fun onScanFailed(errorCode: Int) {
-
-            Log.e(TAG, "### ERROR ###")
-            Log.e(TAG, errorCode.toString())
-            Log.e(TAG, "### /ERROR ###")
-            mDelegate?.onError(errorCode)
-        }
-
-        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-
-            Log.i(TAG, "### ON BATCH SCAN RESULTS ###")
-        }
+        return mActivity.getString(resId)
     }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 
@@ -212,5 +233,21 @@ open class DeviceFinder : Fragment() {
                 }
             }
         }
+    }
+
+    fun getConnectedDevices(delegate: IDeviceFinder) {
+
+        mDelegate = delegate
+
+        // TODO: Fake data
+        mDelegate?.onResult(DeviceFinder.makeDevices())
+//        mDelegate?.onError(0)
+    }
+
+    override fun onDestroy() {
+
+        scanDevices(false)
+        mDelegate = null
+        super.onDestroy()
     }
 }
