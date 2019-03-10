@@ -1,8 +1,8 @@
 package com.ibm.cic.kotlin.starterkit.activities
 
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -27,6 +27,7 @@ class DiscoverActivity : BaseActivity() {
     private lateinit var mBLEAdapter: BLEAdapter
     private lateinit var mRefreshButton: Button
     private lateinit var deviceFinder: DeviceFinder
+    private var isScanningStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -36,24 +37,39 @@ class DiscoverActivity : BaseActivity() {
         initScanner()
     }
 
+    override fun onDestroy() {
+
+        deviceFinder.scanDevices(false)
+        super.onDestroy()
+    }
+
     private fun initScanner() {
 
         mBLEAdapter = BLEAdapter(R.layout.item_discovering_ble, object : OnBLEItemClickInterface {
 
             override fun onClick(model: BLEModel) {
 
+                deviceFinder.scanDevices(false)
                 val intent = Intent(applicationContext, DeviceActivity::class.java)
-                intent.putExtra("model", model)
+                intent.putExtra("model", model.device)
+                intent.putExtra("name", model.name)
                 startActivity(intent)
             }
         })
 
         mRecyclerView = findViewById(R.id.recycler_discover_bounded_devices)
         mRefreshButton = findViewById(R.id.btn_discover_refresh)
-        mRefreshButton.setOnClickListener(View.OnClickListener {
 
-            scan()
-        })
+        mRefreshButton.setOnClickListener {
+
+            if(isScanningStarted) {
+
+                deviceFinder.scanDevices(false)
+            }
+            else {
+                scan()
+            }
+        }
 
         mRecyclerView.layoutManager = LinearLayoutManager(this)
         mRecyclerView.adapter = mBLEAdapter
@@ -68,6 +84,16 @@ class DiscoverActivity : BaseActivity() {
     fun scan() {
 
         deviceFinder.scan(this, object: IDeviceFinder {
+
+            override fun onStart() {
+                isScanningStarted = true
+                mRefreshButton.text = getString(R.string.stop)
+            }
+
+            override fun onStop() {
+                isScanningStarted = false
+                mRefreshButton.text = getString(R.string.refresh)
+            }
 
             override fun onResult(list: ArrayList<BLEModel>) {
 

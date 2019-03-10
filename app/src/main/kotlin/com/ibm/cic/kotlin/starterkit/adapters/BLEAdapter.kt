@@ -41,6 +41,7 @@ internal class BLEAdapter constructor(_itemLayout: Int, _itemListener: OnBLEItem
         else {
             holder.itemView.discovered_name.text = model.name
             holder.itemView.discovered_address.text = model.address
+            holder.itemView.discovered_rssi.text = model.rssi.toString()
         }
 
         holder.itemView.setOnClickListener {

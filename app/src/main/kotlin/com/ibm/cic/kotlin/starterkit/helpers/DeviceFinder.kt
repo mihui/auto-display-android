@@ -4,12 +4,15 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Fragment
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
@@ -22,6 +25,8 @@ interface IDeviceFinder {
 
     fun onResult(list: ArrayList<BLEModel>)
     fun onError(errorCode: Int)
+    fun onStart()
+    fun onStop()
 }
 
 open class DeviceFinder : Fragment() {
@@ -47,13 +52,17 @@ open class DeviceFinder : Fragment() {
 
         val REQUEST_CODE_ACCESS_FINE_LOCATION: Int = 1
 
-        fun makeDevices() : ArrayList<BLEModel> {
+        fun makeDevices(count: Int) : ArrayList<BLEModel> {
 
             val result = ArrayList<BLEModel>()
-            val list = mutableListOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+            val list = ArrayList<Int>()
+            for (i in 1 until count + 1) {
+                list.add(i)
+            }
 
             list.forEach {
-                result.add(BLEModel(String.format("Fufinity Display - %s", it), String.format("0%s:00:00:00:00:00", it), 1, it.toInt()))
+
+                result.add(BLEModel(String.format("Fufinity Display - %s", it), String.format("0%s:00:00:00:00:00", it), null, it))
             }
 
             return result
@@ -80,18 +89,26 @@ open class DeviceFinder : Fragment() {
                     var name = getRuntimeString(R.string.unknown_device)
 
                     if(device.name != null) {
+
                         name = device.name
                     }
+//                    else {
+//                        return
+//                    }
 
                     //Log.d(TAG, String.format("### %s, %s, %s, %s ###", device.name, device.address, device.bondState, result.rssi))
-
                     //Log.d(TAG, "### /SCAN CALLBACK ###")
-                    val model = BLEModel(name, device.address, device.bondState, result.rssi)
+
+                    val model = BLEModel(name, device.address, device, result.rssi)
                     var isExists = false
-                    deviceList.iterator().forEach {
+
+                    deviceList.forEach {
+
                         if (it.address == model.address) {
 
                             it.name = model.name
+                            it.address = model.address
+                            it.rssi = model.rssi
                             isExists = true
                         }
                     }
@@ -180,7 +197,7 @@ open class DeviceFinder : Fragment() {
 
             Log.d(TAG,"### NO BLE SUPPORT ###")
 
-            val list = makeDevices()
+            val list = makeDevices(20)
             deviceList.addAll(list)
 
             mDelegate?.onResult(deviceList)
@@ -191,13 +208,18 @@ open class DeviceFinder : Fragment() {
     fun scanDevices(enable: Boolean) {
 
         Log.i(TAG, "### SCAN DEVICES ###")
+
         if(enable) {
-            mHandler?.postDelayed({
-                mScanner?.stopScan(mScanCallback)
-            }, mScanPeriod)
+
+            mDelegate?.onStart()
             mScanner?.startScan(mScanFilters, mScanSettings, mScanCallback)
+
+//            mHandler?.postDelayed({
+//                scanDevices(false)
+//            }, mScanPeriod)
         }
         else {
+            mDelegate?.onStop()
             mScanner?.stopScan(mScanCallback)
         }
     }
@@ -240,7 +262,7 @@ open class DeviceFinder : Fragment() {
         mDelegate = delegate
 
         // TODO: Fake data
-        mDelegate?.onResult(DeviceFinder.makeDevices())
+        mDelegate?.onResult(DeviceFinder.makeDevices(3))
 //        mDelegate?.onError(0)
     }
 

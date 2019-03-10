@@ -1,5 +1,6 @@
 package com.ibm.cic.kotlin.starterkit.fragments
 
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -60,7 +61,8 @@ class HomeFragment : Fragment() {
             override fun onClick(model: BLEModel) {
 
                 val intent = Intent(context, DeviceActivity::class.java)
-                intent.putExtra("model", model)
+                intent.putExtra("model", model.device)
+                intent.putExtra("name", model.name)
                 startActivity(intent)
             }
         })
@@ -83,6 +85,13 @@ class HomeFragment : Fragment() {
         deviceFinder = DeviceFinder()
 
         deviceFinder.getConnectedDevices(object: IDeviceFinder {
+            override fun onStart() {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onStop() {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
 
             override fun onResult(list: ArrayList<BLEModel>) {
 

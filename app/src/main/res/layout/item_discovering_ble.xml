@@ -24,13 +24,30 @@
             android:text="@string/template_title"
             />
 
-        <TextView
-            android:id="@+id/discovered_address"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textSize="@dimen/font_extra_small"
-            android:text="@string/template_subtitle"
-            />
+            android:orientation="horizontal"
+            >
+
+            <TextView
+                android:id="@+id/discovered_address"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textSize="@dimen/font_extra_small"
+                android:text="@string/template_address"
+                android:layout_weight=".4"
+                />
+
+            <TextView
+                android:id="@+id/discovered_rssi"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textSize="@dimen/font_extra_small"
+                android:text="@string/template_rssi"
+                android:layout_weight=".6"
+                />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

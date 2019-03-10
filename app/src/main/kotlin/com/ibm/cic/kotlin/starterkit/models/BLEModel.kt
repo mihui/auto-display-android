@@ -1,21 +1,27 @@
 package com.ibm.cic.kotlin.starterkit.models
 
+import android.bluetooth.BluetoothDevice
 import android.content.res.Resources
 import com.ibm.cic.kotlin.starterkit.application.R
 import java.io.Serializable
 
-class BLEModel constructor(_name: String, _address: String, _state: Int, _rssi: Int) : Serializable {
+class BLEModel constructor(bleName: String, bleAddress: String, bleDevice: BluetoothDevice?, _rssi: Int) : Serializable {
 
-    var name: String
-    var address: String
-    var state: Int
-    var rssi: Int
+    var device: BluetoothDevice? = bleDevice
+    var rssi: Int = _rssi
+    var address: String = bleAddress
+        get() {
+            if(device == null || device?.address == null) {
+                return field
+            }
+            return device!!.address
+        }
 
-    init {
-        name = _name
-        address = _address
-        state = _state
-        rssi = _rssi
-    }
-
+    var name: String = bleName
+        get() {
+            if(device == null || device?.name == null) {
+                return field
+            }
+            return device!!.name
+        }
 }
