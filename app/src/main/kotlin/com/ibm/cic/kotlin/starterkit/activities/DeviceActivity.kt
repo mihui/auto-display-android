@@ -35,6 +35,7 @@ class DeviceActivity : BaseActivity() {
 
                     STATE_CONNECTED -> {
                         showMessage("Connected")
+                        gatt?.discoverServices()
                     }
 
                     STATE_CONNECTING -> {
@@ -47,6 +48,19 @@ class DeviceActivity : BaseActivity() {
 
                     STATE_DISCONNECTING -> {
                         showMessage("Disconnecting")
+                    }
+                }
+            }
+
+            override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+
+                when(status) {
+
+                    BluetoothGatt.GATT_SUCCESS -> {
+
+                    }
+                    else -> {
+
                     }
                 }
             }
