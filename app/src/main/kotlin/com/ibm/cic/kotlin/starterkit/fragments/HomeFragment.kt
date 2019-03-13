@@ -82,15 +82,16 @@ class HomeFragment : Fragment() {
 
         mRecyclerView.addItemDecoration(BLEDecoration(20, 10))
 
-        deviceFinder = DeviceFinder()
+        deviceFinder = DeviceFinder(mActivity)
 
         deviceFinder.getConnectedDevices(object: IDeviceFinder {
             override fun onStart() {
-//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+                println("### onStop ###")
             }
 
             override fun onStop() {
-//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                println("### onStop ###")
             }
 
             override fun onResult(list: ArrayList<BLEModel>) {

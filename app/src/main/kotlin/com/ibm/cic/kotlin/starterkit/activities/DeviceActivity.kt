@@ -57,10 +57,12 @@ class DeviceActivity : BaseActivity() {
                 when(status) {
 
                     BluetoothGatt.GATT_SUCCESS -> {
-
+                        val list = gatt?.services
+                        showMessage("Discovered "+ list?.size +" services")
+                        println("### Discovered "+ list?.size + " services ###")
                     }
                     else -> {
-
+                        println("### Discovered $status services ###")
                     }
                 }
             }

@@ -76,14 +76,14 @@ class DiscoverActivity : BaseActivity() {
 
         mRecyclerView.addItemDecoration(BLEDecoration(0, 1))
 
-        deviceFinder = DeviceFinder()
+        deviceFinder = DeviceFinder(this)
 
         scan()
     }
 
     fun scan() {
 
-        deviceFinder.scan(this, object: IDeviceFinder {
+        deviceFinder.scan(object: IDeviceFinder {
 
             override fun onStart() {
                 isScanningStarted = true

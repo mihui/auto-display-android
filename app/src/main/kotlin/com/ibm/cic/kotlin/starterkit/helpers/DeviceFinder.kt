@@ -6,10 +6,12 @@ import android.app.Fragment
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.os.Handler
 import android.support.annotation.RequiresApi
@@ -29,7 +31,7 @@ interface IDeviceFinder {
     fun onStop()
 }
 
-open class DeviceFinder : Fragment() {
+open class DeviceFinder constructor(activity: FragmentActivity) : Fragment() {
 
     private val TAG = "BLE|DeviceFinder"
 
@@ -39,7 +41,7 @@ open class DeviceFinder : Fragment() {
     private var mScanSettings: ScanSettings? = null
     private var mHandler: Handler? = null
 
-    protected lateinit var mActivity: FragmentActivity
+    lateinit var mActivity: FragmentActivity
 
     private var deviceList: ArrayList<BLEModel> = ArrayList()
     private val mScanPeriod: Long = 5000
@@ -67,11 +69,35 @@ open class DeviceFinder : Fragment() {
 
             return result
         }
+
+        fun makeDevices(list: List<BluetoothDevice>) : ArrayList<BLEModel> {
+
+            val result = ArrayList<BLEModel>()
+            list.forEach {
+
+                var name = "Unknown device"
+
+                if(it.name != null) {
+
+                    name = it.name
+                }
+
+                result.add(BLEModel(name, it.address, it, 0))
+            }
+            return result
+        }
     }
 
-    fun scan(activity: FragmentActivity, delegate: IDeviceFinder) {
-
+    init {
         mActivity = activity
+    }
+
+    fun getRuntimeString(resId: Int): String {
+
+        return mActivity.getString(resId)
+    }
+
+    fun scan(delegate: IDeviceFinder) {
 
         mDelegate = delegate
 
@@ -224,11 +250,6 @@ open class DeviceFinder : Fragment() {
         }
     }
 
-    fun getRuntimeString(resId: Int): String {
-
-        return mActivity.getString(resId)
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 
         Log.i(TAG,"### ON REQUEST PERMISSION RESULT ###")
@@ -262,8 +283,15 @@ open class DeviceFinder : Fragment() {
         mDelegate = delegate
 
         // TODO: Fake data
-        mDelegate?.onResult(DeviceFinder.makeDevices(3))
+//        mDelegate?.onResult(DeviceFinder.makeDevices(3))
 //        mDelegate?.onError(0)
+
+        val manager = mActivity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+
+        val list = manager.getConnectedDevices(BluetoothProfile.GATT)
+
+        mDelegate?.onResult(DeviceFinder.makeDevices(list))
+
     }
 
     override fun onDestroy() {
