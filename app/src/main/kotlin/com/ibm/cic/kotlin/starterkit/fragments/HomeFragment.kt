@@ -56,6 +56,8 @@ class HomeFragment : Fragment() {
 
     private fun initScanner(cView: View) {
 
+        println("### INIT SCANNER ###")
+
         mBLEAdapter = BLEAdapter(R.layout.item_connected_ble, object : OnBLEItemClickInterface {
 
             override fun onClick(model: BLEModel) {
@@ -71,11 +73,11 @@ class HomeFragment : Fragment() {
         mRecyclerView = cView.findViewById(R.id.recycler_bounded_devices)
         deviceCount = cView.findViewById<TextView>(R.id.connected_device_title)
         mDiscoverButton = cView.findViewById(R.id.btn_discover)
-        mDiscoverButton.setOnClickListener(View.OnClickListener {
+        mDiscoverButton.setOnClickListener {
 
             val intent = Intent(context, DiscoverActivity::class.java)
             startActivity(intent)
-        })
+        }
 
         mRecyclerView.layoutManager = StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL)
         mRecyclerView.adapter = mBLEAdapter
@@ -84,6 +86,12 @@ class HomeFragment : Fragment() {
 
         deviceFinder = DeviceFinder(mActivity)
 
+        findConnectedDevices()
+    }
+
+    private fun findConnectedDevices() {
+
+        println("### FIND CONNECTED DEVICES ###")
         deviceFinder.getConnectedDevices(object: IDeviceFinder {
             override fun onStart() {
 
@@ -111,6 +119,13 @@ class HomeFragment : Fragment() {
                 Log.e(TAG, "### /ERROR ###")
             }
         })
+    }
+
+    override fun onResume() {
+
+        println("### ON RESUME ###")
+        findConnectedDevices()
+        super.onResume()
     }
 
 }

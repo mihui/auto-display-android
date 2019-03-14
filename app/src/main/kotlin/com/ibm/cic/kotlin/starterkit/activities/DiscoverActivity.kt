@@ -1,13 +1,11 @@
 package com.ibm.cic.kotlin.starterkit.activities
 
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -81,7 +79,7 @@ class DiscoverActivity : BaseActivity() {
         scan()
     }
 
-    fun scan() {
+    private fun scan() {
 
         deviceFinder.scan(object: IDeviceFinder {
 
