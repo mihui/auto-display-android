@@ -12,8 +12,8 @@ import android.widget.Toast
 import com.ibm.cic.kotlin.starterkit.adapters.BLEAdapter
 import com.ibm.cic.kotlin.starterkit.application.R
 import com.ibm.cic.kotlin.starterkit.decorations.BLEDecoration
-import com.ibm.cic.kotlin.starterkit.helpers.DeviceFinder
-import com.ibm.cic.kotlin.starterkit.helpers.IDeviceFinder
+import com.ibm.cic.kotlin.starterkit.helpers.DeviceManager
+import com.ibm.cic.kotlin.starterkit.helpers.IDeviceManager
 import com.ibm.cic.kotlin.starterkit.interfaces.OnBLEItemClickInterface
 import com.ibm.cic.kotlin.starterkit.models.BLEModel
 
@@ -24,7 +24,7 @@ class DiscoverActivity : BaseActivity() {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mBLEAdapter: BLEAdapter
     private lateinit var mRefreshButton: Button
-    private lateinit var deviceFinder: DeviceFinder
+    private lateinit var deviceManager: DeviceManager
     private var isScanningStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,12 +32,24 @@ class DiscoverActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_discover)
 
+        deviceManager = DeviceManager(this)
+    }
+
+    override fun onResume() {
+
+        super.onResume()
+
+        deviceManager.register()
+
         initScanner()
+        scan()
     }
 
     override fun onDestroy() {
 
-        deviceFinder.scanDevices(false)
+        deviceManager.unRegister();
+        deviceManager.scanDevices(false)
+
         super.onDestroy()
     }
 
@@ -47,9 +59,9 @@ class DiscoverActivity : BaseActivity() {
 
             override fun onClick(model: BLEModel) {
 
-                deviceFinder.scanDevices(false)
+                deviceManager.scanDevices(false)
                 val intent = Intent(applicationContext, DeviceActivity::class.java)
-                intent.putExtra("model", model.device)
+                intent.putExtra("address", model.device?.address)
                 intent.putExtra("name", model.name)
                 startActivity(intent)
             }
@@ -62,7 +74,7 @@ class DiscoverActivity : BaseActivity() {
 
             if(isScanningStarted) {
 
-                deviceFinder.scanDevices(false)
+                deviceManager.scanDevices(false)
             }
             else {
                 scan()
@@ -73,15 +85,11 @@ class DiscoverActivity : BaseActivity() {
         mRecyclerView.adapter = mBLEAdapter
 
         mRecyclerView.addItemDecoration(BLEDecoration(0, 1))
-
-        deviceFinder = DeviceFinder(this)
-
-        scan()
     }
 
     private fun scan() {
 
-        deviceFinder.scan(object: IDeviceFinder {
+        deviceManager.scan(object: IDeviceManager {
 
             override fun onStart() {
                 isScanningStarted = true
@@ -119,12 +127,14 @@ class DiscoverActivity : BaseActivity() {
 
         when(requestCode) {
 
-            DeviceFinder.REQUEST_CODE_ACCESS_FINE_LOCATION -> {
+            DeviceManager.REQUEST_CODE_ACCESS_FINE_LOCATION -> {
 
                 var isGranted = false
 
-                grantResults.forEach { it ->
+                grantResults.forEach {
+
                     if(it == PackageManager.PERMISSION_GRANTED) {
+
                         isGranted = true
                         return@forEach
                     }
@@ -132,7 +142,7 @@ class DiscoverActivity : BaseActivity() {
 
                 if (isGranted) {
                     Toast.makeText(this, "The Location access has been granted.", Toast.LENGTH_SHORT).show()
-                    deviceFinder.checkFeature()
+                    deviceManager.checkFeature()
                 }
                 else {
                     Toast.makeText(this, "The Location access has been denied!", Toast.LENGTH_SHORT).show()

@@ -27,6 +27,7 @@ internal class BLEAdapter constructor(_itemLayout: Int, _itemListener: OnBLEItem
     }
 
     fun setDevices(_devices: List<BLEModel>) {
+
         devices = _devices;
         notifyDataSetChanged();
     }
@@ -36,9 +37,11 @@ internal class BLEAdapter constructor(_itemLayout: Int, _itemListener: OnBLEItem
         val model = devices.get(position)
 
         if(itemLayout == R.layout.item_connected_ble) {
+
             holder.itemView.connected_name.text = model.name
         }
         else {
+
             holder.itemView.discovered_name.text = model.name
             holder.itemView.discovered_address.text = model.address
             holder.itemView.discovered_rssi.text = model.rssi.toString()

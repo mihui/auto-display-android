@@ -1,11 +1,9 @@
 package com.ibm.cic.kotlin.starterkit.fragments
 
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.util.Log
@@ -14,15 +12,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import com.ibm.cic.kotlin.starterkit.activities.DeviceActivity
 import com.ibm.cic.kotlin.starterkit.activities.DiscoverActivity
 import com.ibm.cic.kotlin.starterkit.models.BLEModel
 import com.ibm.cic.kotlin.starterkit.adapters.BLEAdapter
 import com.ibm.cic.kotlin.starterkit.application.R
 import com.ibm.cic.kotlin.starterkit.decorations.BLEDecoration
-import com.ibm.cic.kotlin.starterkit.helpers.DeviceFinder
-import com.ibm.cic.kotlin.starterkit.helpers.IDeviceFinder
+import com.ibm.cic.kotlin.starterkit.helpers.DeviceManager
+import com.ibm.cic.kotlin.starterkit.helpers.IDeviceManager
 import com.ibm.cic.kotlin.starterkit.interfaces.OnBLEItemClickInterface
 
 class HomeFragment : Fragment() {
@@ -33,7 +30,7 @@ class HomeFragment : Fragment() {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mBLEAdapter: BLEAdapter
     private lateinit var mDiscoverButton: Button
-    private lateinit var deviceFinder: DeviceFinder
+    private lateinit var deviceManager: DeviceManager
     private lateinit var deviceCount: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,7 +60,7 @@ class HomeFragment : Fragment() {
             override fun onClick(model: BLEModel) {
 
                 val intent = Intent(context, DeviceActivity::class.java)
-                intent.putExtra("model", model.device)
+                intent.putExtra("address", model.device?.address)
                 intent.putExtra("name", model.name)
                 startActivity(intent)
             }
@@ -84,7 +81,7 @@ class HomeFragment : Fragment() {
 
         mRecyclerView.addItemDecoration(BLEDecoration(20, 10))
 
-        deviceFinder = DeviceFinder(mActivity)
+        deviceManager = DeviceManager(mActivity)
 
         findConnectedDevices()
     }
@@ -92,33 +89,44 @@ class HomeFragment : Fragment() {
     private fun findConnectedDevices() {
 
         println("### FIND CONNECTED DEVICES ###")
-        deviceFinder.getConnectedDevices(object: IDeviceFinder {
+        deviceManager.getConnectedDevices(object: IDeviceManager {
+
             override fun onStart() {
 
                 println("### onStop ###")
             }
 
             override fun onStop() {
+
                 println("### onStop ###")
             }
 
             override fun onResult(list: ArrayList<BLEModel>) {
 
-                mActivity.runOnUiThread {
 
-                    deviceCount.text = getString(R.string.connected_device_list, list.size.toString())
-                }
 
                 mBLEAdapter.setDevices(list)
+                refreshUI(list.size)
             }
 
             override fun onError(errorCode: Int) {
 
+//                mBLEAdapter.setDevices(ArrayList())
+                mBLEAdapter.setDevices(DeviceManager.getConnectedDevices())
+                refreshUI(0)
                 Log.e(TAG, "### ERROR ###")
                 Log.e(TAG, errorCode.toString())
                 Log.e(TAG, "### /ERROR ###")
             }
         })
+    }
+
+    fun refreshUI(num: Int) {
+
+        mActivity.runOnUiThread {
+
+            deviceCount.text = getString(R.string.connected_device_list, num.toString())
+        }
     }
 
     override fun onResume() {

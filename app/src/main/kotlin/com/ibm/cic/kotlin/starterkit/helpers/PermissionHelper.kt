@@ -50,7 +50,7 @@ class PermissionHelper constructor(activity: Activity){
                 val builder = AlertDialog.Builder(mActivity)
                 builder.setMessage("You have previously denied the Location access, would you want to verify the access?").setPositiveButton("Yes") { _, _ ->
 
-                    ActivityCompat.requestPermissions(mActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), DeviceFinder.REQUEST_CODE_ACCESS_FINE_LOCATION)
+                    ActivityCompat.requestPermissions(mActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), DeviceManager.REQUEST_CODE_ACCESS_FINE_LOCATION)
                 }.setNegativeButton("No") { _, _ ->
 
                     Toast.makeText(mActivity, "You still DO DOT have the access to the Location Service as you denied the permission request!", Toast.LENGTH_SHORT).show()
@@ -58,7 +58,7 @@ class PermissionHelper constructor(activity: Activity){
                 builder.show()
             }
             else {
-                ActivityCompat.requestPermissions(mActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), DeviceFinder.REQUEST_CODE_ACCESS_FINE_LOCATION)
+                ActivityCompat.requestPermissions(mActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), DeviceManager.REQUEST_CODE_ACCESS_FINE_LOCATION)
             }
         }
     }

@@ -1,9 +1,15 @@
 package com.ibm.cic.kotlin.starterkit.application
 
+import android.bluetooth.BluetoothClass
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.annotation.Nullable
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -12,10 +18,10 @@ import android.view.MenuItem
 import com.ibm.cic.kotlin.starterkit.fragments.HomeFragment
 import com.ibm.cic.kotlin.starterkit.fragments.MeFragment
 import com.ibm.cic.kotlin.starterkit.fragments.TransactionsFragment
+import com.ibm.cic.kotlin.starterkit.helpers.DeviceManager
 import com.ibm.cic.kotlin.starterkit.helpers.LogHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -97,11 +103,56 @@ class MainActivity : AppCompatActivity() {
             return@setOnNavigationItemSelectedListener loadFragment(homeFragment, bundle)
         }
 
-        val bundle: Bundle = Bundle();
+        val bundle = Bundle();
         bundle.putString("TEXT", "HOME")
         loadFragment(homeFragment, bundle)
 
+        initService()
+
         //initBluetooth()
+    }
+
+    private val bluetoothServiceBroadCastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+            println("### BROADCAST RECEIVER: ${intent?.action}")
+
+            when(intent?.action) {
+
+                DeviceManager.DEVICE_CONNECTED -> {
+
+                }
+                DeviceManager.DEVICE_DISCONNECTED -> {
+
+                }
+                DeviceManager.DEVICE_DISCOVERED -> {
+
+                }
+                DeviceManager.DEVICE_DATA_AVAILABLE -> {
+
+                }
+                DeviceManager.DEVICE_NOT_SUPPORTED -> {
+
+                }
+            }
+        }
+    }
+
+    private fun bluetoothServiceIntentFilter (): IntentFilter {
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(DeviceManager.DEVICE_CONNECTED)
+        intentFilter.addAction(DeviceManager.DEVICE_DISCONNECTED)
+        intentFilter.addAction(DeviceManager.DEVICE_DISCOVERED)
+        intentFilter.addAction(DeviceManager.DEVICE_DATA_AVAILABLE)
+        intentFilter.addAction(DeviceManager.DEVICE_NOT_SUPPORTED)
+        return intentFilter
+    }
+
+    private fun initService() {
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(bluetoothServiceBroadCastReceiver, bluetoothServiceIntentFilter())
     }
 
     override fun onBackPressed() {

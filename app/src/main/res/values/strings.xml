@@ -17,4 +17,10 @@
     <string name="refresh">刷新</string>
     <string name="unknown_device">未知设备</string>
     <string name="stop">停止</string>
+    <string name="connecting">正在连接设备</string>
+    <string name="disconnect">断开连接</string>
+    <string name="service_not_found">Service not found</string>
+    <string name="connected">Connected</string>
+    <string name="characteristic_not_found">Characteristic not found</string>
+    <string name="descriptor_not_found">Descriptor not found</string>
 </resources>

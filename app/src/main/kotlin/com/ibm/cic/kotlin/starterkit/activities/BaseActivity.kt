@@ -1,11 +1,14 @@
 package com.ibm.cic.kotlin.starterkit.activities
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
-import com.ibm.cic.kotlin.starterkit.application.R
+import com.ibm.cic.kotlin.starterkit.application.OneApplication
 
+@SuppressLint("Registered")
 open class BaseActivity : AppCompatActivity() {
 
     @SuppressLint("RestrictedApi")
@@ -18,4 +21,5 @@ open class BaseActivity : AppCompatActivity() {
         toolbar?.setDisplayHomeAsUpEnabled(true)
         toolbar?.setDefaultDisplayHomeAsUpEnabled(true)
     }
+
 }
