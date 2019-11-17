@@ -40,15 +40,15 @@ class ExampleUnitTest {
         val matrixHelper = MatrixHelper(activity)
         val list = matrixHelper.getString("我爱你")
 
-        val finalArray = Array(16) { "0x00, 0x00" }
+        val finalArray = ArrayList<String>()
         var byteCount = 0
         var byteIndex = 0
 
-        list.forEach { it
+        list.forEach {
 
             if(byteCount % 2 == 0) {
 
-                finalArray[byteIndex] = it
+                finalArray.add(it)
             }
             else {
 
@@ -58,7 +58,7 @@ class ExampleUnitTest {
             byteCount++
         }
 
-        finalArray.forEach { it
+        finalArray.forEach {
 
             println(it)
         }

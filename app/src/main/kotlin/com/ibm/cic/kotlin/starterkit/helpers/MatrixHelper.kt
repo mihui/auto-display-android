@@ -9,13 +9,13 @@ class MatrixHelper(private val context: Context) {
     private val all_2_4 = 2
     private val all_32_128 = 32
 
-    fun getString(str: String): Array<String> {
+    fun getString(str: String): ArrayList<String> {
 
         var data: ByteArray? = null
         var code: IntArray? = null
         var byteCount: Int
 
-        val list = Array(all_32_128) { "0x00" }
+        val list = ArrayList<String>()
 
         for (i in str.indices) {
 
@@ -48,8 +48,9 @@ class MatrixHelper(private val context: Context) {
 
                     val hexValue = "0x%02x".format(decimalValue)
 
+                    list.add(hexValue)
                     println("$lineCount: $hexValue")
-                    list[lineCount++] = hexValue
+                    lineCount++
                 }
 //                println()
             }
