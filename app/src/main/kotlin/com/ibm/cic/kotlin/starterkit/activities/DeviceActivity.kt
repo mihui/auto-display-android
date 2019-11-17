@@ -3,11 +3,7 @@ package com.ibm.cic.kotlin.starterkit.activities
 import android.bluetooth.*
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.Toast
 import com.ibm.cic.kotlin.starterkit.application.R
-import com.ibm.cic.kotlin.starterkit.constants.Fufinity
 import com.ibm.cic.kotlin.starterkit.helpers.DeviceManager
 import com.ibm.cic.kotlin.starterkit.interfaces.IConnectionCallback
 import android.bluetooth.BluetoothGattCharacteristic
@@ -15,7 +11,7 @@ import android.bluetooth.BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
 import android.content.Intent
 import android.support.v4.content.LocalBroadcastManager
 import android.text.method.ScrollingMovementMethod
-import android.widget.TextView
+import android.widget.*
 import com.ibm.cic.kotlin.starterkit.application.BuildConfig
 import kotlinx.android.synthetic.main.activity_device.*
 
@@ -24,15 +20,24 @@ import java.util.UUID.fromString
 class DeviceActivity : BaseActivity() {
 
     var loadingView: LinearLayout? = null
+    var loadingTextView: TextView? = null
+    var mainView: RelativeLayout? = null
     var logTextView: TextView? = null
+    var btnSend: Button? = null
+    var txtInput: EditText? = null
     var bleAddress: String? = null
     var currentGatt: BluetoothGatt? = null
 
     companion object {
 
         var UUID_SERVICE = fromString("0000fff0-0000-1000-8000-00805f9b34fb")!!
-        var UUID_CHARACTERISTIC = fromString("00002902-0000-1000-8000-00805f9b34fb")!!
-        var UUID_DESCRIPTOR = fromString("00002902-0000-1000-8000-00805f9b34fb")!!
+
+        // NOTIFY
+        var UUID_NOTIFY_CHARACTERISTIC = fromString("0000fff4-0000-1000-8000-00805f9b34fb")!!
+        var UUID_NOTIFY_DESCRIPTOR = fromString("00002902-0000-1000-8000-00805f9b34fb")!!
+
+        // WRITE
+        var UUID_WRITE_CHARACTERISTIC = fromString("0000fff1-0000-1000-8000-00805f9b34fb")!!
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +50,13 @@ class DeviceActivity : BaseActivity() {
         if(BuildConfig.DEBUG) {
 
             UUID_SERVICE = fromString("00001800-0000-1000-8000-00805f9b34fb")!!
-            UUID_CHARACTERISTIC = fromString("00002a00-0000-1000-8000-00805f9b34fb")!!
-            UUID_DESCRIPTOR = fromString("00002902-0000-1000-8000-00805f9b34fb")!!
+
+            // NOTIFY
+            UUID_NOTIFY_CHARACTERISTIC = fromString("00002a00-0000-1000-8000-00805f9b34fb")!!
+            UUID_NOTIFY_DESCRIPTOR = fromString("00002902-0000-1000-8000-00805f9b34fb")!!
+
+            // WRITE
+            UUID_WRITE_CHARACTERISTIC = fromString("00002902-0000-1000-8000-00805f9b34fb")!!
         }
     }
 
@@ -60,30 +70,62 @@ class DeviceActivity : BaseActivity() {
 
         val intent = Intent(action)
 
-        if(UUID_CHARACTERISTIC == characteristic?.uuid) {
+        if(UUID_NOTIFY_CHARACTERISTIC == characteristic?.uuid) {
 
-            intent.putExtra(DeviceManager.INTENT_DATA, characteristic?.value)
+            intent.putExtra(DeviceManager.INTENT_DATA, characteristic.value)
         }
 
         return LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
+    private fun startLoading(resource: Int) {
+
+        loadingView?.visibility = View.VISIBLE
+        loadingTextView?.text = getString(resource)
+    }
+
+    private fun stopLoading() {
+
+        loadingView?.visibility = View.INVISIBLE
+        loadingTextView?.text = ""
+    }
+
     private fun initUI() {
 
         loadingView = findViewById(R.id.layout_loading)
+        loadingTextView = findViewById(R.id.txt_loading)
         logTextView = findViewById(R.id.txt_log)
+        btnSend = findViewById(R.id.btn_send)
+        txtInput = findViewById(R.id.txt_top_text)
+        mainView = findViewById(R.id.layout_main_view)
         logTextView?.movementMethod = ScrollingMovementMethod.getInstance()
 
         bleAddress = intent.getStringExtra("address")
         val name  = intent.getStringExtra("name")
 
-//        println("### ADDRESS ###")
-//        println(bleAddress)
-//        println(name)
-//        println("### /ADDRESS ###")
-
         title = name
-        loadingView?.visibility = View.VISIBLE
+
+        startLoading(R.string.connecting)
+
+        btnSend?.setOnClickListener{ it
+
+            startLoading(R.string.sending)
+
+            val txt: String = txtInput?.text.toString()
+
+            if(txt.isNotBlank()) {
+
+                if(sendText(txt)) {
+
+                    // success
+                }
+                else {
+
+                    // fail
+                }
+                stopLoading()
+            }
+        }
 
         DeviceManager.connect(bleAddress, object: IConnectionCallback<BluetoothGatt?> {
 
@@ -93,7 +135,8 @@ class DeviceActivity : BaseActivity() {
 
                 runOnUiThread {
 
-                    loadingView?.visibility = View.GONE
+                    stopLoading()
+                    mainView?.visibility = View.VISIBLE
                 }
 
                 currentGatt = payload
@@ -250,10 +293,38 @@ class DeviceActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Send text
+     * @param txt String
+     */
+    private fun sendText(txt: String): Boolean {
+
+        appendLog("### SENDING CHARACTERS ###")
+        val gattService = currentGatt?.getService(UUID_SERVICE)
+        if(gattService == null) {
+
+            showMessage("${getString(R.string.service_not_found)}: $UUID_SERVICE")
+            broadcastNow(DeviceManager.DEVICE_NOT_SUPPORTED)
+            return false
+        }
+        val gattCharacteristic = gattService.getCharacteristic(UUID_WRITE_CHARACTERISTIC)
+        if(gattCharacteristic == null) {
+
+            showMessage(getString(R.string.characteristic_not_found))
+            broadcastNow(DeviceManager.DEVICE_NOT_SUPPORTED)
+            return false
+        }
+
+        gattCharacteristic.setValue(txt)
+
+        val status = currentGatt?.writeCharacteristic(gattCharacteristic)
+
+        return status ?: false
+    }
+
     fun enableNotification() {
 
         appendLog("### ENABLING NOTIFICATION ###")
-        // SPECIFIC A UUID
         val gattService = currentGatt?.getService(UUID_SERVICE)
         if(gattService == null) {
 
@@ -261,8 +332,7 @@ class DeviceActivity : BaseActivity() {
             broadcastNow(DeviceManager.DEVICE_NOT_SUPPORTED)
             return
         }
-
-        val gattCharacteristic = gattService.getCharacteristic(UUID_CHARACTERISTIC)
+        val gattCharacteristic = gattService.getCharacteristic(UUID_NOTIFY_CHARACTERISTIC)
         if(gattCharacteristic == null) {
 
             showMessage(getString(R.string.characteristic_not_found))
@@ -270,7 +340,7 @@ class DeviceActivity : BaseActivity() {
             return
         }
 
-        val gattDescriptor = gattCharacteristic.getDescriptor(UUID_DESCRIPTOR)
+        val gattDescriptor = gattCharacteristic.getDescriptor(UUID_NOTIFY_DESCRIPTOR)
         if(gattDescriptor == null) {
 
             showMessage(getString(R.string.descriptor_not_found))
@@ -279,7 +349,6 @@ class DeviceActivity : BaseActivity() {
         }
         gattDescriptor.value = ENABLE_NOTIFICATION_VALUE
         currentGatt?.writeDescriptor(gattDescriptor)
-        /// SPECIFIC A UUID
     }
 
     private fun disConnect(address: String?) {
