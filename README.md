@@ -1,3 +1,3 @@
-# Android Kotlin Starter kit
+# Auto Display for Fufinity
 
-This is the repo for the Android developers to get started with the Kotlin Programming Language.
+This is the repository for Auto Display, temperately publicly accessible.
